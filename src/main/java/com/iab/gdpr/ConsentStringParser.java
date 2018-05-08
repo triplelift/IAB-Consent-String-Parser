@@ -99,7 +99,6 @@ public class ConsentStringParser {
 		// begin parsing
 
 		this.version = bits.getInt(VERSION_BIT_OFFSET, VERSION_BIT_SIZE);
-		String s = bits.getBinaryString();
 		this.consentRecordCreated = bits.getInstantFromEpochDemiseconds(CREATED_BIT_OFFSET, CREATED_BIT_SIZE);
 		this.consentRecordLastUpdated = bits.getInstantFromEpochDemiseconds(UPDATED_BIT_OFFSET, UPDATED_BIT_SIZE);
 		this.cmpID = bits.getInt(CMP_ID_OFFSET, CMP_ID_SIZE);
@@ -269,8 +268,16 @@ public class ConsentStringParser {
 			boolean present = findVendorIdInRange(vendorId);
 			return present != defaultConsent;
 		} else {
-			return bits.getBit(VENDOR_BITFIELD_OFFSET + vendorId - 1);
+			boolean allowed;
+			try {
+				allowed = bits.getBit(VENDOR_BITFIELD_OFFSET + vendorId - 1);
+			} catch (ParseException e) {
+				// index of out bounds
+				allowed = false;
+			}
+			return allowed;
 		}
+
 	}
 
 	// static classes
@@ -324,10 +331,14 @@ public class ConsentStringParser {
 		 * @param index:
 		 *            the nth number bit to get from the bit string
 		 * @return boolean bit, true if the bit is switched to 1, false otherwise
+		 * @throws ParseException
 		 */
-		public boolean getBit(int index) {
+		public boolean getBit(int index) throws ParseException {
 			int byteIndex = index / 8;
 			int bitExact = index % 8;
+			if (byteIndex >= bytes.length) {
+				throw new ParseException("requesting bit beyond bit string length", index);
+			}
 			byte b = bytes[byteIndex];
 			return (b & bytePows[bitExact]) != 0;
 		}
@@ -444,7 +455,7 @@ public class ConsentStringParser {
 		 * @return a string representation of the byte array passed in the constructor. for example, a byte array of [4]
 		 *         yeilds a String of "0100"
 		 */
-		public String getBinaryString() {
+		public String getBinaryString() throws ParseException {
 			StringBuilder s = new StringBuilder();
 			int i = 0;
 			int ii = length();
