@@ -68,7 +68,7 @@ public class ConsentStringParser {
 	private List<RangeEntry> rangeEntries;
 	private boolean defaultConsent;
 
-	private List<Integer> integerPurposes = null;
+	private final List<Integer> integerPurposes;
 
 	private static Decoder decoder = Base64.getUrlDecoder();
 
@@ -112,6 +112,13 @@ public class ConsentStringParser {
 		for (int i = PURPOSES_OFFSET, ii = PURPOSES_OFFSET + PURPOSES_SIZE; i < ii; i++) {
 			allowedPurposes.add(bits.getBit(i));
 		}
+		List<Integer> purposes = new ArrayList<Integer>();
+		for (int i = 1, ii = allowedPurposes.size(); i <= ii; i++) {
+			if (isPurposeAllowed(i)) {
+				purposes.add(i);
+			}
+		}
+		this.integerPurposes = purposes;
 		if (vendorEncodingType == VENDOR_ENCODING_RANGE) {
 			this.rangeEntries = new ArrayList<RangeEntry>();
 			this.defaultConsent = bits.getBit(DEFAULT_CONSENT_OFFSET);
@@ -202,17 +209,11 @@ public class ConsentStringParser {
 	 * @return a list of purpose id's which are permitted according to this consent string
 	 */
 	public List<Integer> getAllowedPurposes() {
-		if (integerPurposes != null) {
-			return integerPurposes;
+		List<Integer> allowed = new ArrayList<Integer>();
+		for (Integer i : integerPurposes) {
+			allowed.add(i);
 		}
-		List<Integer> purposes = new ArrayList<Integer>();
-		for (int i = 1, ii = allowedPurposes.size(); i <= ii; i++) {
-			if (isPurposeAllowed(i)) {
-				purposes.add(i);
-			}
-		}
-		integerPurposes = purposes;
-		return purposes;
+		return allowed;
 
 	}
 
