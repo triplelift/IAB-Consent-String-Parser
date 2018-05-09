@@ -1,12 +1,83 @@
 apply plugin: 'java'
 apply plugin: 'eclipse'
 apply plugin: 'idea'
+apply plugin: 'maven'
+apply plugin: 'signing'
+
 repositories {
     mavenCentral()
 }
 
- dependencies {
-        testCompile (
-            "junit:junit:4.11",
-        )
+dependencies {
+    testCompile (
+        "junit:junit:4.11",
+    )
+}
+
+task javadocJar(type: Jar) {
+        classifier = 'javadoc'
+            from javadoc
+}
+
+task sourcesJar(type: Jar) {
+        classifier = 'sources'
+            from sourceSets.main.allSource
+}
+
+artifacts {
+        archives javadocJar, sourcesJar
+}
+
+signing {
+        sign configurations.archives
+}
+
+group = "com.triplelift.gdpr"
+archivesBaseName = "consent-string-parser"
+version = "1.1.0"
+
+uploadArchives {
+  repositories {
+    mavenDeployer {
+      beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+
+      repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+        authentication(userName: ossrhUsername, password: ossrhPassword)
+      }
+
+      snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
+        authentication(userName: ossrhUsername, password: ossrhPassword)
+      }
+
+      pom.project {
+        name 'Consent String Parser'
+        packaging 'jar'
+        // optionally artifactId can be defined here 
+        description 'A parser for IAB style consent strings'
+        url 'https://github.com/triplelift/IAB-Consent-String-Parser'
+
+        scm {
+          connection 'scm:git@github.com:triplelift/IAB-Consent-String-Parser.git'
+          developerConnection 'scm:git@github.com:triplelift/IAB-Consent-String-Parser.git'
+          url 'http://foo.googlecode.com/svn/trunk://github.com/triplelift/IAB-Consent-String-Parser.git'
+        }
+
+        licenses {
+          license {
+            name 'MIT Liscence'
+            url 'https://opensource.org/licenses/MIT'
+          }
+        }
+
+        developers {
+          developer {
+            id 'kkerr'
+            name 'Kevin Kerr'
+            email 'kkerr@triplelift.com'
+          }
+        }
+      }
     }
+  }
+}
+
