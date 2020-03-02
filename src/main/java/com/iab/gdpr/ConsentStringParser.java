@@ -13,7 +13,7 @@ import java.util.List;
  * https://github.com/InteractiveAdvertisingBureau/GDPR-Transparency-and-Consent-Framework/blob/master/Consent%20string%20and%20vendor%20list%20formats%20v1.1%20Final.md#vendor-consent-string-format-
  */
 
-public class ConsentStringParser {
+public class ConsentStringParser implements ConsentInfo {
 
 	private static final int VENDOR_ENCODING_RANGE = 1;
 
@@ -59,7 +59,7 @@ public class ConsentStringParser {
 	private final int vendorListVersion;
 	private final int maxVendorSize;
 	private final int vendorEncodingType;
-	private final List<Boolean> allowedPurposes = new ArrayList<Boolean>();
+	private final List<Boolean> consentedPurposes = new ArrayList<Boolean>();
 	// only used when range entry is enabled
 	private List<RangeEntry> rangeEntries;
 	private boolean defaultConsent;
@@ -105,11 +105,11 @@ public class ConsentStringParser {
 		this.maxVendorSize = bits.getInt(MAX_VENDOR_ID_OFFSET, MAX_VENDOR_ID_SIZE);
 		this.vendorEncodingType = bits.getInt(ENCODING_TYPE_OFFSET, ENCODING_TYPE_SIZE);
 		for (int i = PURPOSES_OFFSET, ii = PURPOSES_OFFSET + PURPOSES_SIZE; i < ii; i++) {
-			allowedPurposes.add(bits.getBit(i));
+			consentedPurposes.add(bits.getBit(i));
 		}
 		List<Integer> purposes = new ArrayList<Integer>();
-		for (int i = 1, ii = allowedPurposes.size(); i <= ii; i++) {
-			if (isPurposeAllowed(i)) {
+		for (int i = 1, ii = consentedPurposes.size(); i <= ii; i++) {
+			if (isPurposeConsented(i)) {
 				purposes.add(i);
 			}
 		}
@@ -139,95 +139,94 @@ public class ConsentStringParser {
 	}
 
 	/**
-	 * @return the string passes in the constructor.
-	 *
+	 * {@inheritDoc}
 	 */
+	@Override
 	public String getConsentString() {
 		return consentString;
 	}
 
 	/**
-	 * @return the {@link Instant} at which the consent record was created
+	 * {@inheritDoc}
 	 */
+	@Override
 	public Instant getConsentRecordCreated() {
 		return consentRecordCreated;
 	}
 
 	/**
-	 *
-	 * @return the {@link Instant} at which the cookie was last updated
+	 * {@inheritDoc}
 	 */
+	@Override
 	public Instant getConsentRecordLastUpdated() {
 		return consentRecordLastUpdated;
 	}
 
 	/**
-	 *
-	 * @return the version of the cookie format used in this consent string
+	 * {@inheritDoc}
 	 */
+	@Override
 	public int getVersion() {
 		return version;
 	}
 
 	/**
-	 *
-	 * @return the id of the consent management partner that created this consent string
+	 * {@inheritDoc}
 	 */
+	@Override
 	public int getCmpId() {
 		return cmpID;
 	}
 
 	/**
-	 * @return the version of the cmp being used
+	 * {@inheritDoc}
 	 */
+	@Override
 	public int getCmpVersion() {
 		return cmpVersion;
 	}
 
 	/**
-	 *
-	 * @return the id of the string through which the user gave consent in the CMP UI
+	 * {@inheritDoc}
 	 */
+	@Override
 	public int getConsentScreen() {
 		return consentScreenID;
 	}
 
 	/**
-	 * @return The two letter ISO639-1 language code in which the CMP asked for consent
+	 * {@inheritDoc}
 	 */
+	@Override
 	public String getConsentLanguage() {
 		return consentLanguage;
 	}
 
 	/**
-	 *
-	 * @return a list of purpose id's which are permitted according to this consent string
+	 * {@inheritDoc}
 	 */
-	public List<Integer> getAllowedPurposes() {
-		List<Integer> allowed = new ArrayList<Integer>();
-		for (Integer i : integerPurposes) {
-			allowed.add(i);
-		}
-		return allowed;
-
+	@Override
+	public List<Integer> getConsentedPurposes() {
+		return new ArrayList<Integer>(integerPurposes);
 	}
 
 	/**
-	 *
-	 * @return the vendor list version which was used in creating this consent string
+	 * {@inheritDoc}
 	 */
+	@Override
 	public int getVendorListVersion() {
 		return vendorListVersion;
 	}
 
 	/**
-	 * @return a boolean describing the user consent status for a particular purpose. The lowest purpose ID is 1.
+	 * {@inheritDoc}
 	 */
-	public boolean isPurposeAllowed(int purposeId) {
-		if (purposeId < 1 || purposeId > allowedPurposes.size()) {
+	@Override
+	public boolean isPurposeConsented(int purposeId) {
+		if (purposeId < 1 || purposeId > consentedPurposes.size()) {
 			return false;
 		}
-		return allowedPurposes.get(purposeId - 1);
+		return consentedPurposes.get(purposeId - 1);
 	}
 
 	private boolean findVendorIdInRange(int vendorId) {
@@ -254,12 +253,10 @@ public class ConsentStringParser {
 	}
 
 	/**
-	 * @return a boolean describing if a vendor has consented to a particular vendor. The lowest vendor ID is 1.
-	 *
-	 *         This method, along with {@link isPurposeAllowed} fully describes the user consent for a particular action
-	 *         by a given vendor.
+	 * {@inheritDoc}
 	 */
-	public boolean isVendorAllowed(int vendorId) {
+	@Override
+	public boolean isVendorConsented(int vendorId) {
 		if (vendorEncodingType == VENDOR_ENCODING_RANGE) {
 			boolean present = findVendorIdInRange(vendorId);
 			return present != defaultConsent;
