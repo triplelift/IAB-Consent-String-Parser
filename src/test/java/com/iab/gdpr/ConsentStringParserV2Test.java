@@ -22,16 +22,20 @@ public class ConsentStringParserV2Test {
 		assertTrue(consent.isVendorConsented(18));
 		assertFalse(consent.isVendorConsented(12));
 		assertTrue(consent.isPurposeConsented(5));
+		assertTrue(consent.isPurposeConsented(Purpose.PurposeV2.PERSONALISED_CONTENT_PROFILE));
+		assertFalse(consent.isPurposeConsented(Purpose.PurposeV1.CONTENT_DELIVERY));
 		assertFalse(consent.isPurposeConsented(4));
 		assertTrue(consent.isVendorLegitInterestEstablished(712));
 		assertFalse(consent.isVendorLegitInterestEstablished(714));
 		assertTrue(consent.isPurposeLegitInterestEstablished(4));
 		assertTrue(consent.isPurposeLegitInterestEstablished(7));
+		assertTrue(consent.isPurposeLegitInterestEstablished(Purpose.PurposeV2.MEASURE_ADS));
 		assertFalse(consent.isPurposeLegitInterestEstablished(6));
 		assertTrue(consent.isServiceSpecific());
 		assertFalse(consent.isPurposeOneDisclosed());
 		assertTrue(consent.useNonStandardStacks());
 		assertTrue(consent.isFeatureOptioned(1));
+		assertTrue(consent.isFeatureOptioned(SpecialFeature.SpecialFeatureV2.GEOLOCATION));
 		assertFalse(consent.isFeatureOptioned(2));
 	}
 

@@ -69,7 +69,7 @@ public class ConsentStringParserV2 implements ConsentInfo {
 	private boolean nonStandardStacks;
 	private List<Boolean> featureOptins;
 	private List<Boolean> purposeConsents;
-	private List<Integer> consentedPurposes;
+	private List<Purpose.PurposeV2> consentedPurposes;
 	private List<Boolean> purposeLegitInterests;
 	private boolean purposeOneDisclosed;
 	private String publisherCc;
@@ -130,10 +130,10 @@ public class ConsentStringParserV2 implements ConsentInfo {
 		this.nonStandardStacks = bits.getBit(USE_NON_STANDARD_STACKS_OFFSET);
 		this.featureOptins = bits.getBitList(SPECIAL_FEATURE_OPT_INS_OFFSET, SPECIAL_FEATURE_OPT_INS_SIZE);
 		this.purposeConsents = bits.getBitList(PURPOSES_CONSENT_OFFSET, PURPOSES_CONSENT_SIZE);
-		this.consentedPurposes = new ArrayList<Integer>();
+		this.consentedPurposes = new ArrayList<Purpose.PurposeV2>();
 		for (int i = 1; i <= this.purposeConsents.size(); i++) {
 			if (isPurposeConsented(i)) {
-				this.consentedPurposes.add(i);
+				this.consentedPurposes.add(Purpose.PurposeV2.valueOf(i));
 			}
 		}
 		this.purposeLegitInterests = bits.getBitList(PURPOSES_LI_TRANSPARENCY_OFFSET, PURPOSES_LI_TRANSPARENCY_SIZE);
@@ -309,8 +309,19 @@ public class ConsentStringParserV2 implements ConsentInfo {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public List<Integer> getConsentedPurposes() {
-		return new ArrayList<Integer>(consentedPurposes);
+	public boolean isPurposeConsented(Purpose purpose) {
+		if (purpose.getVersion() != version) {
+			return false;
+		}
+		return isPurposeConsented(purpose.getValue());
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public List<Purpose> getConsentedPurposes() {
+		return new ArrayList<Purpose>(consentedPurposes);
 	}
 
 	/**
@@ -361,8 +372,30 @@ public class ConsentStringParserV2 implements ConsentInfo {
 	 * {@inheritDoc}
 	 */
 	@Override
+	public boolean isFeatureOptioned(SpecialFeature feature) {
+		if (feature.getVersion() != version) {
+			return false;
+		}
+		return isFeatureOptioned(feature.getValue());
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	public boolean isPurposeLegitInterestEstablished(int purposeId) {
 		return findIdInBitField(purposeId, purposeLegitInterests);
+	}
+
+	/**
+	 *
+	 */
+	@Override
+	public boolean isPurposeLegitInterestEstablished(Purpose purpose) {
+		if (purpose.getVersion() != version) {
+			return false;
+		}
+		return isPurposeLegitInterestEstablished(purpose.getValue());
 	}
 
 	/**

@@ -58,9 +58,17 @@ public interface ConsentInfo {
 	boolean isPurposeConsented(int purposeId);
 
 	/**
-	 * @return list of Ids for all purposes that were consented to
+	 * @param purpose
+	 *      Purpose to check consent info for
+	 * @return
+	 *      boolean for whether or not the purpose was consented to
 	 */
-	List<Integer> getConsentedPurposes();
+	boolean isPurposeConsented(Purpose purpose);
+
+	/**
+	 * @return list of all purposes that were consented to
+	 */
+	List<Purpose> getConsentedPurposes();
 
 	/**
 	 * @param vendorId
@@ -103,6 +111,17 @@ public interface ConsentInfo {
 		return false;
 	}
 
+
+	/**
+	 * @param feature
+	 *      SpecialFeature to check option status for
+	 * @return
+	 *      boolean for whether or not the feature was optioned by the user
+	 */
+	default boolean isFeatureOptioned(SpecialFeature feature) {
+		return false;
+	}
+
 	/**
 	 * @param purposeId
 	 *      Id of the purpose to check legitimate interest establishment for
@@ -110,6 +129,16 @@ public interface ConsentInfo {
 	 *      boolean for whether the purpose has established legitimate interest
 	 */
 	default boolean isPurposeLegitInterestEstablished(int purposeId) {
+		return false;
+	}
+
+	/**
+	 * @param purpose
+	 *      Purpose to check legitimate interest establishment for
+	 * @return
+	 *      boolean for whether the purpose has established legitimate interest
+	 */
+	default boolean isPurposeLegitInterestEstablished(Purpose purpose) {
 		return false;
 	}
 

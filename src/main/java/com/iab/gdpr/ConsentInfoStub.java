@@ -96,8 +96,16 @@ public class ConsentInfoStub implements ConsentInfo {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public List<Integer> getConsentedPurposes() {
-		return new ArrayList<Integer>();
+	public boolean isPurposeConsented(Purpose purpose) {
+		return false;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public List<Purpose> getConsentedPurposes() {
+		return new ArrayList<Purpose>();
 	}
 
 	/**

@@ -59,12 +59,12 @@ public class ConsentStringParser implements ConsentInfo {
 	private final int vendorListVersion;
 	private final int maxVendorSize;
 	private final int vendorEncodingType;
-	private final List<Boolean> consentedPurposes = new ArrayList<Boolean>();
+	private final List<Boolean> purposeConsents = new ArrayList<Boolean>();
 	// only used when range entry is enabled
 	private List<RangeEntry> rangeEntries;
 	private boolean defaultConsent;
 
-	private final List<Integer> integerPurposes;
+	private final List<Purpose.PurposeV1> consentedPurposes;
 
 	private static Decoder decoder = Base64.getUrlDecoder();
 
@@ -105,15 +105,15 @@ public class ConsentStringParser implements ConsentInfo {
 		this.maxVendorSize = bits.getInt(MAX_VENDOR_ID_OFFSET, MAX_VENDOR_ID_SIZE);
 		this.vendorEncodingType = bits.getInt(ENCODING_TYPE_OFFSET, ENCODING_TYPE_SIZE);
 		for (int i = PURPOSES_OFFSET, ii = PURPOSES_OFFSET + PURPOSES_SIZE; i < ii; i++) {
-			consentedPurposes.add(bits.getBit(i));
+			purposeConsents.add(bits.getBit(i));
 		}
-		List<Integer> purposes = new ArrayList<Integer>();
-		for (int i = 1, ii = consentedPurposes.size(); i <= ii; i++) {
+		List<Purpose.PurposeV1> purposes = new ArrayList<Purpose.PurposeV1>();
+		for (int i = 1, ii = purposeConsents.size(); i <= ii; i++) {
 			if (isPurposeConsented(i)) {
-				purposes.add(i);
+				purposes.add(Purpose.PurposeV1.valueOf(i));
 			}
 		}
-		this.integerPurposes = purposes;
+		this.consentedPurposes = purposes;
 		if (vendorEncodingType == VENDOR_ENCODING_RANGE) {
 			this.rangeEntries = new ArrayList<RangeEntry>();
 			this.defaultConsent = bits.getBit(DEFAULT_CONSENT_OFFSET);
@@ -206,8 +206,8 @@ public class ConsentStringParser implements ConsentInfo {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public List<Integer> getConsentedPurposes() {
-		return new ArrayList<Integer>(integerPurposes);
+	public List<Purpose> getConsentedPurposes() {
+		return new ArrayList<Purpose>(consentedPurposes);
 	}
 
 	/**
@@ -223,10 +223,21 @@ public class ConsentStringParser implements ConsentInfo {
 	 */
 	@Override
 	public boolean isPurposeConsented(int purposeId) {
-		if (purposeId < 1 || purposeId > consentedPurposes.size()) {
+		if (purposeId < 1 || purposeId > purposeConsents.size()) {
 			return false;
 		}
-		return consentedPurposes.get(purposeId - 1);
+		return purposeConsents.get(purposeId - 1);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean isPurposeConsented(Purpose purpose) {
+		if (purpose.getVersion() != this.version) {
+			return false;
+		}
+		return isPurposeConsented(purpose.getValue());
 	}
 
 	private boolean findVendorIdInRange(int vendorId) {
