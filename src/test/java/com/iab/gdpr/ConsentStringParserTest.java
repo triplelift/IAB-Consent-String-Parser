@@ -20,16 +20,16 @@ public class ConsentStringParserTest {
 		assertEquals("FR", consent.getConsentLanguage());
 		assertEquals(Instant.ofEpochMilli(14924661858L * 100), consent.getConsentRecordCreated());
 		assertEquals(Instant.ofEpochMilli(15240021858L * 100), consent.getConsentRecordLastUpdated());
-		assertEquals(5, consent.getAllowedPurposes().size());
-		assertTrue(consent.isPurposeAllowed(2));
-		assertFalse(consent.isPurposeAllowed(1));
-		assertTrue(consent.isPurposeAllowed(21));
-		assertTrue(consent.isVendorAllowed(1));
-		assertTrue(consent.isVendorAllowed(5));
-		assertTrue(consent.isVendorAllowed(7));
-		assertTrue(consent.isVendorAllowed(9));
-		assertFalse(consent.isVendorAllowed(0));
-		assertFalse(consent.isVendorAllowed(10));
+		assertEquals(5, consent.getConsentedPurposes().size());
+		assertTrue(consent.isPurposeConsented(2));
+		assertFalse(consent.isPurposeConsented(1));
+		assertTrue(consent.isPurposeConsented(21));
+		assertTrue(consent.isVendorConsented(1));
+		assertTrue(consent.isVendorConsented(5));
+		assertTrue(consent.isVendorConsented(7));
+		assertTrue(consent.isVendorConsented(9));
+		assertFalse(consent.isVendorConsented(0));
+		assertFalse(consent.isVendorConsented(10));
 		assertEquals(consentString, consent.getConsentString());
 	}
 
@@ -43,19 +43,19 @@ public class ConsentStringParserTest {
 		assertEquals("EN", consent.getConsentLanguage());
 		assertEquals(Instant.ofEpochMilli(14924661858L * 100), consent.getConsentRecordCreated());
 		assertEquals(Instant.ofEpochMilli(15240021858L * 100), consent.getConsentRecordLastUpdated());
-		assertEquals(8, consent.getAllowedPurposes().size());
-		assertTrue(consent.isPurposeAllowed(4));
-		assertFalse(consent.isPurposeAllowed(1));
-		assertTrue(consent.isPurposeAllowed(24));
-		assertFalse(consent.isPurposeAllowed(25));
-		assertFalse(consent.isPurposeAllowed(0));
-		assertFalse(consent.isVendorAllowed(1));
-		assertFalse(consent.isVendorAllowed(3));
-		assertTrue(consent.isVendorAllowed(225));
-		assertTrue(consent.isVendorAllowed(5000));
-		assertTrue(consent.isVendorAllowed(515));
-		assertFalse(consent.isVendorAllowed(0));
-		assertFalse(consent.isVendorAllowed(3244));
+		assertEquals(8, consent.getConsentedPurposes().size());
+		assertTrue(consent.isPurposeConsented(4));
+		assertFalse(consent.isPurposeConsented(1));
+		assertTrue(consent.isPurposeConsented(24));
+		assertFalse(consent.isPurposeConsented(25));
+		assertFalse(consent.isPurposeConsented(0));
+		assertFalse(consent.isVendorConsented(1));
+		assertFalse(consent.isVendorConsented(3));
+		assertTrue(consent.isVendorConsented(225));
+		assertTrue(consent.isVendorConsented(5000));
+		assertTrue(consent.isVendorConsented(515));
+		assertFalse(consent.isVendorConsented(0));
+		assertFalse(consent.isVendorConsented(3244));
 		assertEquals(consentString, consent.getConsentString());
 
 	}
@@ -65,12 +65,12 @@ public class ConsentStringParserTest {
 		String consentString = "BONZt-1ONZt-1AHABBENAO-AAAAHCAEAASABmADYAOAAeA";
 		ConsentStringParser consent = new ConsentStringParser(consentString);
 
-		assertTrue(consent.isPurposeAllowed(1));
-		assertTrue(consent.isPurposeAllowed(3));
-		assertTrue(consent.isVendorAllowed(28));
-		assertFalse(consent.isVendorAllowed(1));
-		assertFalse(consent.isVendorAllowed(3));
-		assertTrue(consent.isVendorAllowed(27));
+		assertTrue(consent.isPurposeConsented(1));
+		assertTrue(consent.isPurposeConsented(3));
+		assertTrue(consent.isVendorConsented(28));
+		assertFalse(consent.isVendorConsented(1));
+		assertFalse(consent.isVendorConsented(3));
+		assertTrue(consent.isVendorConsented(27));
 	}
 
 }
