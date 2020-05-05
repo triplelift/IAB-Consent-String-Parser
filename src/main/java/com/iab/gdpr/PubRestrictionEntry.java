@@ -22,6 +22,22 @@ public class PubRestrictionEntry {
 		this.entries = entries;
 	}
 
+	public int getPurposeId() {
+		return purposeId;
+	}
+
+	public RestrictionType getType() {
+		return type;
+	}
+
+	public List<RangeEntry> getEntries() {
+		return new ArrayList<>(entries);
+	}
+
+	public boolean isVendorRestricted(int vendorId) {
+		return RangeEntry.isVendorIdInRange(vendorId, entries);
+	}
+
 	public enum RestrictionType {
 		NOT_ALLOWED(0), REQUIRE_CONSENT(1), REQUIRE_LEGIT_INTEREST(2), UNDEFINED(3), UNKNOWN(-1);
 		private final int value;

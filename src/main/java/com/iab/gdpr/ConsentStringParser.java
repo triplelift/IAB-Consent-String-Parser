@@ -240,36 +240,13 @@ public class ConsentStringParser implements ConsentInfo {
 		return isPurposeConsented(purpose.getValue());
 	}
 
-	private boolean findVendorIdInRange(int vendorId) {
-		int limit = rangeEntries.size();
-		if (limit == 0) {
-			return false;
-		}
-		int index = limit / 2;
-		while (index >= 0 && index < limit) {
-			RangeEntry entry = rangeEntries.get(index);
-			if (entry.containsVendorId(vendorId)) {
-				return true;
-			}
-			if (index == 0 || index == limit - 1) {
-				return false;
-			}
-			if (entry.idIsGreaterThanMax(vendorId)) {
-				index = (index + ((limit - index) / 2));
-			} else {
-				index = index / 2;
-			}
-		}
-		return false;
-	}
-
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	public boolean isVendorConsented(int vendorId) {
 		if (vendorEncodingType == VENDOR_ENCODING_RANGE) {
-			boolean present = findVendorIdInRange(vendorId);
+			boolean present = RangeEntry.isVendorIdInRange(vendorId, rangeEntries);
 			return present != defaultConsent;
 		} else {
 			boolean allowed;

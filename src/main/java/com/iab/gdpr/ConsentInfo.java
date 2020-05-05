@@ -1,6 +1,7 @@
 package com.iab.gdpr;
 
 import java.time.Instant;
+import java.util.Collections;
 import java.util.List;
 
 public interface ConsentInfo {
@@ -224,6 +225,13 @@ public interface ConsentInfo {
 	 */
 	default boolean isCustomPurposeLegitInterestEstablished(int purposeId) {
 		return false;
+	}
+
+	/**
+	 * @return list of publisher restriction entries
+	 */
+	default List<PubRestrictionEntry> getPublisherRestrictions() {
+		return Collections.emptyList();
 	}
 
 

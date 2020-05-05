@@ -195,29 +195,6 @@ public class ConsentStringParserV2 implements ConsentInfo {
 		this.customPurposeLegitInterests = bits.getBitList(offset, numCustomPurposes);
 	}
 
-	private boolean findVendorIdInRange(int vendorId, List<RangeEntry> rangeEntries) {
-		int limit = rangeEntries.size();
-		if (limit == 0) {
-			return false;
-		}
-		int index = limit / 2;
-		while (index >= 0 && index < limit) {
-			RangeEntry entry = rangeEntries.get(index);
-			if (entry.containsVendorId(vendorId)) {
-				return true;
-			}
-			if (index == 0 || index == limit - 1) {
-				return false;
-			}
-			if (entry.idIsGreaterThanMax(vendorId)) {
-				index = (index + ((limit - index) / 2));
-			} else {
-				index = index / 2;
-			}
-		}
-		return false;
-	}
-
 	private boolean findIdInBitField(int index, List<Boolean> bitField) {
 		if (index < 1 || index > bitField.size()) {
 			return false;
@@ -332,7 +309,7 @@ public class ConsentStringParserV2 implements ConsentInfo {
 		if (vendorConsentsBitField != null) {
 			return findIdInBitField(vendorId, vendorConsentsBitField);
 		} else {
-			return findVendorIdInRange(vendorId, vendorConsentsRanges);
+			return  RangeEntry.isVendorIdInRange(vendorId, vendorConsentsRanges);
 		}
 	}
 
@@ -422,7 +399,7 @@ public class ConsentStringParserV2 implements ConsentInfo {
 		if (vendorLegitInterestsBitField != null) {
 			return findIdInBitField(vendorId, vendorLegitInterestsBitField);
 		} else {
-			return findVendorIdInRange(vendorId, vendorLegitInterestRanges);
+			return RangeEntry.isVendorIdInRange(vendorId, vendorLegitInterestRanges);
 		}
 	}
 
@@ -434,7 +411,7 @@ public class ConsentStringParserV2 implements ConsentInfo {
 		if (vendorDisclosureBitField != null) {
 			return findIdInBitField(vendorId, vendorDisclosureBitField);
 		} else {
-			return findVendorIdInRange(vendorId, vendorDisclosureRanges);
+			return RangeEntry.isVendorIdInRange(vendorId, vendorDisclosureRanges);
 		}
 	}
 
@@ -446,7 +423,7 @@ public class ConsentStringParserV2 implements ConsentInfo {
 		if (vendorAllowancesBitField != null) {
 			return findIdInBitField(vendorId, vendorAllowancesBitField);
 		} else {
-			return findVendorIdInRange(vendorId, vendorAllowancesRanges);
+			return RangeEntry.isVendorIdInRange(vendorId, vendorAllowancesRanges);
 		}
 	}
 
@@ -480,6 +457,14 @@ public class ConsentStringParserV2 implements ConsentInfo {
 	@Override
 	public boolean isCustomPurposeLegitInterestEstablished(int purposeId) {
 		return findIdInBitField(purposeId, customPurposeLegitInterests);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public List<PubRestrictionEntry> getPublisherRestrictions() {
+		return new ArrayList<>(publisherRestrictions);
 	}
 
 	private static class RangeOrBitFieldParser {
