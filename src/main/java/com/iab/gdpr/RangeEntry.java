@@ -43,4 +43,27 @@ public class RangeEntry {
 	public int getMinVendorId() {
 		return minVendorId;
 	}
+
+	public static boolean isVendorIdInRange(int vendorId, List<RangeEntry> rangeEntries) {
+		int limit = rangeEntries.size();
+		if (limit == 0) {
+			return false;
+		}
+		int index = limit / 2;
+		while (index >= 0 && index < limit) {
+			RangeEntry entry = rangeEntries.get(index);
+			if (entry.containsVendorId(vendorId)) {
+				return true;
+			}
+			if (index == 0 || index == limit - 1) {
+				return false;
+			}
+			if (entry.idIsGreaterThanMax(vendorId)) {
+				index = (index + ((limit - index) / 2));
+			} else {
+				index = index / 2;
+			}
+		}
+		return false;
+	}
 }
